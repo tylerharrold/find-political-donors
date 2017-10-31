@@ -3,4 +3,4 @@ import sys
 
 sys.argv.append("../input/itcont.txt")
 
-fpd.process_date_data()
+df = fpd.process_date_data()

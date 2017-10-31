@@ -33,7 +33,7 @@ def process_zip_data():
         # grab local copies of relevant data points
         cmte_id = line[idx["CMTE_ID"]]
         zip_code = line[idx["ZIP_CODE"]]
-        transaction_amt = line[idx["TRANSACTION_AMT"]]
+        transaction_amt = int(line[idx["TRANSACTION_AMT"]])
         # ensure integrity of data
         # if acceptable, add to data structure
         if cmte_id in cmte_id_dict:
@@ -79,17 +79,20 @@ def process_date_data():
     # use pandas builtin read csv
     df = pd.read_csv(sys.argv[1] , sep='|' , header=None , names=column_names, index_col=False, converters=converters)
 
+    # we want to completely filter our any records that contain values for OTHER_ID
+    df = df.loc[df["OTHER_ID"] == '']
+
     # process data?
     for cmte_id , cmte_id_frame in df.groupby("CMTE_ID"):
-        if cmte_id_frame["OTHER_ID"] != '':
-            print("should ignore this")
         for dte , dte_frame in cmte_id_frame.groupby("TRANSACTION_DT"):
             sum_on_date = dte_frame['TRANSACTION_AMT'].sum()
-            print(cmte_id , dte , sum_on_date)
+            mean_for_date = dte_frame['TRANSACTION_AMT'].mean()
+            total_for_date = len(dte_frame)
+            print(cmte_id , dte , mean_for_date, total_for_date, sum_on_date)
 
-
+# Helper function that takes relevant data and writes it to the medianvals_by_zip text file
 def write_zip_data(outfile , cmte_id , zip_code , median , total_num , total_sum):
-    output_string = str(cmt_id) + "|" + str(zip_code) + "|" + str(median) + "|" + str(total_num) + "|" + str(total_sum) + "\n"
+    output_string = str(cmte_id) + "|" + str(zip_code) + "|" + str(median) + "|" + str(total_num) + "|" + str(total_sum) + "\n"
     outfile.write(output_string)
     
 
@@ -104,11 +107,13 @@ idx = {
     }
 
 # dictionary of functions to use when importing data 
-converters = {"TRANSACTION_AMT" : cleaner.clean_transaction_amt }
+converters = {
+                "TRANSACTION_AMT" : cleaner.clean_transaction_amt ,
+                "OTHER_ID" : cleaner.clean_other_id
+            }
 
 
 
-
+# allows script to be callable from command line w/ args
 if __name__ == "__main__":
-    print(idx["ZIP_CODE"])
-    #process_data()
+    process_zip_data()
