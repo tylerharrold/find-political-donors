@@ -1,9 +1,10 @@
 <h1>Tyler Harrold: find-political-donors Implementation</h1>
 
-Dependencies:
-
+<h3>Dependencies:</h3>
+	<p>
 	This program utilizes the pandas and numpy libraries. These libraries are most easily installed alongside
 Anaconda, which can be installed at the following address:
+	</p>
 
 	https://docs.anaconda.com/anaconda/install/
 
